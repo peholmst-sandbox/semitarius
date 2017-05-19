@@ -1,0 +1,13 @@
+.header {
+    -fx-background-color: #336699;
+}
+
+.header-tenant-name {
+    -fx-font-size: 30px;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+.member-summary-table {
+    -fx-font-size: 20px;
+}
