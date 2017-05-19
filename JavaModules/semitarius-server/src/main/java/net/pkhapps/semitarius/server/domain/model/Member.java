@@ -3,6 +3,7 @@ package net.pkhapps.semitarius.server.domain.model;
 import net.pkhapps.semitarius.server.domain.ConstructorUsedByJPAOnly;
 import net.pkhapps.semitarius.server.util.Strings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -57,15 +58,29 @@ public class Member extends TenantOwnedAggregateRoot {
         return lastName;
     }
 
-    // TODO Methods for changing the name, email, phonenumber
+    public void setFirstName(@NotNull String firstName) {
+        this.firstName = Strings.requireNonEmpty(firstName, "firstName must not be empty");
+    }
+
+    public void setLastName(@NotNull String lastName) {
+        this.lastName = Strings.requireNonEmpty(lastName, "lastName must not be empty");
+    }
 
     @NotNull
     public Optional<String> getEmail() {
         return Optional.ofNullable(email);
     }
 
+    public void setEmail(@Nullable String email) {
+        this.email = email;
+    }
+
     @NotNull
     public Optional<String> getPhoneNumber() {
         return Optional.ofNullable(phoneNumber);
+    }
+
+    public void setPhoneNumber(@Nullable String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

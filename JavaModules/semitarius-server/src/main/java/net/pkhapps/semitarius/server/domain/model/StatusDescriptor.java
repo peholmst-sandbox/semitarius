@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * Aggregate root representing a tenant-specific status descriptor. Tenants are free to define what statuses they
@@ -17,13 +16,10 @@ import javax.persistence.UniqueConstraint;
  * @see MemberStatus
  */
 @Entity
-@Table(name = StatusDescriptor.TABLE_NAME,
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = {StatusDescriptor.COL_TENANT, StatusDescriptor.COL_IDENTIFIER}))
+@Table(name = StatusDescriptor.TABLE_NAME)
 public class StatusDescriptor extends TenantOwnedAggregateRoot {
 
     static final String TABLE_NAME = "status_descriptors";
-    static final String COL_IDENTIFIER = "identifier";
     static final String COL_NAME = "name";
     static final String COL_COLOR = "color";
 

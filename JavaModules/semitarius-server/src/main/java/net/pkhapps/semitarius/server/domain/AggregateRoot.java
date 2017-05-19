@@ -17,9 +17,11 @@ public abstract class AggregateRoot extends AbstractAggregateRoot {
 
     @Id
     @GeneratedValue
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Version
+    @Column(name = "version", nullable = false)
     private Long version;
 
     /**

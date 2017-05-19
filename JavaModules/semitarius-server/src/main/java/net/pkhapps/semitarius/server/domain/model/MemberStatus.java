@@ -18,7 +18,7 @@ import java.util.Optional;
 @Table(name = MemberStatus.TABLE_NAME)
 public class MemberStatus extends AggregateRoot {
 
-    static final String TABLE_NAME = "user_status";
+    static final String TABLE_NAME = "member_status";
     static final String COL_MEMBER = "member_id";
     static final String COL_STATUS = "status_descriptor_id";
     static final String COL_CHANGED_ON = "changed_on";
@@ -45,7 +45,7 @@ public class MemberStatus extends AggregateRoot {
     }
 
     @NotNull
-    public Member getUser() {
+    public Member getMember() {
         return member;
     }
 
@@ -62,11 +62,13 @@ public class MemberStatus extends AggregateRoot {
     /**
      * Changes the status of this member, firing a {@link MemberStatusChanged} domain event.
      */
-    public void changeStatus(@NotNull StatusDescriptor newStatus, @NotNull Clock clock) {
-        Objects.requireNonNull(newStatus, "newStatus must not be null");
+    public void changeStatus(@NotNull StatusDescriptor status, @NotNull Clock clock) {
+        Objects.requireNonNull(status, "status must not be null");
         Objects.requireNonNull(clock, "clock must not be null");
-        registerEvent(new MemberStatusChanged(member.requireId(), status.requireId()));
-        this.status = newStatus;
-        this.changedOn = clock.instant();
+        if (!Objects.equals(this.status, status)) {
+            registerEvent(new MemberStatusChanged(member.requireId(), status.requireId()));
+            this.status = status;
+            this.changedOn = clock.instant();
+        }
     }
 }
