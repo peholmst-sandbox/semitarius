@@ -72,6 +72,7 @@ public class Member extends TenantOwnedAggregateRoot {
     }
 
     public void setEmail(@Nullable String email) {
+        // TODO Validate e-mail
         this.email = email;
     }
 
@@ -81,6 +82,7 @@ public class Member extends TenantOwnedAggregateRoot {
     }
 
     public void setPhoneNumber(@Nullable String phoneNumber) {
+        // TODO Validate and sanitize phone number
         this.phoneNumber = phoneNumber;
     }
 }

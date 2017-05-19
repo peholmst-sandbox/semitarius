@@ -17,15 +17,15 @@ public class StatusDescriptorDto {
     public Long id;
 
     @JsonProperty
-    private String name;
+    public String name;
 
     @JsonProperty
-    private Integer color;
+    public Integer color;
 
     public StatusDescriptorDto(@NotNull StatusDescriptor statusDescriptor) {
         Objects.requireNonNull(statusDescriptor, "statusDescriptor must not be null");
         id = statusDescriptor.requireId();
         name = statusDescriptor.getName();
-        color = statusDescriptor.getColor();
+        statusDescriptor.getColor().ifPresent(color -> this.color = color);
     }
 }

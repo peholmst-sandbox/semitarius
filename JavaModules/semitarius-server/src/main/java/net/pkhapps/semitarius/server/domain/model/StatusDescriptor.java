@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Optional;
 
 /**
  * Aggregate root representing a tenant-specific status descriptor. Tenants are free to define what statuses they
@@ -58,9 +59,9 @@ public class StatusDescriptor extends TenantOwnedAggregateRoot {
     /**
      * Returns the color of this status descriptor as an RGB integer, if set.
      */
-    @Nullable
-    public Integer getColor() {
-        return color;
+    @NotNull
+    public Optional<Integer> getColor() {
+        return Optional.ofNullable(color);
     }
 
     /**
