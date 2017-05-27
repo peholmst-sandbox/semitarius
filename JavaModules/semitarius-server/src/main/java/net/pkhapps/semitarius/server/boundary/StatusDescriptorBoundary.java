@@ -1,8 +1,10 @@
 package net.pkhapps.semitarius.server.boundary;
 
 import net.pkhapps.semitarius.server.boundary.dto.StatusDescriptorDto;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
 import net.pkhapps.semitarius.server.domain.model.StatusDescriptorRepository;
 import net.pkhapps.semitarius.server.domain.model.Tenant;
+import net.pkhapps.semitarius.server.domain.model.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,21 +30,17 @@ class StatusDescriptorBoundary {
     static final String PATH = "/api/1.0/{tenant}/statusDescriptors";
 
     private final StatusDescriptorRepository statusDescriptorRepository;
-    private final BoundaryUtils boundaryUtils;
 
     @Autowired
     StatusDescriptorBoundary(
-            StatusDescriptorRepository statusDescriptorRepository,
-            BoundaryUtils boundaryUtils) {
+            StatusDescriptorRepository statusDescriptorRepository) {
         this.statusDescriptorRepository = statusDescriptorRepository;
-        this.boundaryUtils = boundaryUtils;
     }
 
     @GetMapping
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
-    public List<StatusDescriptorDto> getStatusDescriptors(@PathVariable("tenant") String tenantIdentifier) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN, UserRole.TENANT_USER})
+    public List<StatusDescriptorDto> getStatusDescriptors(@PathVariable("tenant") Tenant tenant) {
         return statusDescriptorRepository.findByTenant(tenant).stream().map(StatusDescriptorDto::new)
                 .collect(Collectors.toList());
     }

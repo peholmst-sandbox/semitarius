@@ -1,9 +1,12 @@
 package net.pkhapps.semitarius.server.boundary;
 
 import net.pkhapps.semitarius.server.boundary.dto.MemberDto;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRoleOrCorrespondingMember;
 import net.pkhapps.semitarius.server.domain.model.Member;
 import net.pkhapps.semitarius.server.domain.model.MemberRepository;
 import net.pkhapps.semitarius.server.domain.model.Tenant;
+import net.pkhapps.semitarius.server.domain.model.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,32 +33,26 @@ class MemberBoundary {
     // If this turns out not to be the case, then this boundary will not perform well and pagination must be added.
 
     private final MemberRepository memberRepository;
-    private final BoundaryUtils boundaryUtils;
 
     @Autowired
-    MemberBoundary(MemberRepository memberRepository,
-                   BoundaryUtils boundaryUtils) {
+    MemberBoundary(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
-        this.boundaryUtils = boundaryUtils;
     }
 
 
     @GetMapping(path = "/{member}")
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
-    public MemberDto getMember(@PathVariable("tenant") String tenantIdentifier,
-                               @PathVariable("member") Long memberId) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
-        final Member member = boundaryUtils.findMember(tenant, memberId);
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN, UserRole.TENANT_USER})
+    public MemberDto getMember(@PathVariable("tenant") Tenant tenant,
+                               @PathVariable("member") Member member) {
         return new MemberDto(member);
     }
 
     @PostMapping
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    // TODO Security
-    public ResponseEntity<MemberDto> createMember(@PathVariable("tenant") String tenantIdentifier,
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN})
+    public ResponseEntity<MemberDto> createMember(@PathVariable("tenant") Tenant tenant,
                                                   @RequestBody @Valid MemberDto body) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
         final Member member = new Member(tenant, body.firstName, body.lastName);
         member.setEmail(body.email);
         member.setPhoneNumber(body.phoneNumber);
@@ -64,12 +61,10 @@ class MemberBoundary {
 
     @PutMapping(path = "/{member}")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    // TODO Security
-    public ResponseEntity<MemberDto> updateMember(@PathVariable("tenant") String tenantIdentifier,
-                                                  @PathVariable("member") Long memberId,
+    @RequireAnyRoleOrCorrespondingMember({UserRole.SYSADMIN, UserRole.TENANT_ADMIN})
+    public ResponseEntity<MemberDto> updateMember(@PathVariable("tenant") Tenant tenant,
+                                                  @PathVariable("member") Member member,
                                                   @RequestBody @Valid MemberDto body) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
-        final Member member = boundaryUtils.findMember(tenant, memberId);
         member.setFirstName(body.firstName);
         member.setLastName(body.lastName);
         member.setPhoneNumber(body.phoneNumber);
@@ -81,9 +76,8 @@ class MemberBoundary {
 
     @GetMapping
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
-    public List<MemberDto> getMembers(@PathVariable("tenant") String tenantIdentifier) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN, UserRole.TENANT_USER})
+    public List<MemberDto> getMembers(@PathVariable("tenant") Tenant tenant) {
         return memberRepository.findByTenant(tenant).stream().map(MemberDto::new).collect(Collectors.toList());
     }
 }

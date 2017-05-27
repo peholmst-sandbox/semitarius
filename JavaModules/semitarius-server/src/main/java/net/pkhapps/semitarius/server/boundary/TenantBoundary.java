@@ -1,7 +1,10 @@
 package net.pkhapps.semitarius.server.boundary;
 
 import net.pkhapps.semitarius.server.boundary.dto.TenantDto;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
+import net.pkhapps.semitarius.server.domain.model.Tenant;
 import net.pkhapps.semitarius.server.domain.model.TenantRepository;
+import net.pkhapps.semitarius.server.domain.model.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,26 +30,23 @@ class TenantBoundary {
     static final String PATH = "/api/1.0/tenants";
 
     private final TenantRepository tenantRepository;
-    private final BoundaryUtils boundaryUtils;
 
     @Autowired
-    TenantBoundary(TenantRepository tenantRepository,
-                   BoundaryUtils boundaryUtils) {
+    TenantBoundary(TenantRepository tenantRepository) {
         this.tenantRepository = tenantRepository;
-        this.boundaryUtils = boundaryUtils;
     }
 
     @GetMapping
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
+    @RequireAnyRole({UserRole.SYSADMIN})
     public List<TenantDto> getTenants() {
         return tenantRepository.findAll().stream().map(TenantDto::new).collect(Collectors.toList());
     }
 
     @GetMapping("/{tenant}")
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
-    public TenantDto getTenant(@PathVariable("tenant") String tenantIdentifier) {
-        return new TenantDto(boundaryUtils.findTenant(tenantIdentifier));
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN, UserRole.TENANT_USER})
+    public TenantDto getTenant(@PathVariable("tenant") Tenant tenant) {
+        return new TenantDto(tenant);
     }
 }

@@ -1,10 +1,9 @@
 package net.pkhapps.semitarius.server.boundary;
 
 import net.pkhapps.semitarius.server.boundary.dto.MemberLocationDto;
-import net.pkhapps.semitarius.server.domain.model.Member;
-import net.pkhapps.semitarius.server.domain.model.MemberLocation;
-import net.pkhapps.semitarius.server.domain.model.MemberLocationRepository;
-import net.pkhapps.semitarius.server.domain.model.Tenant;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRoleOrCorrespondingMember;
+import net.pkhapps.semitarius.server.domain.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,36 +25,29 @@ import java.time.Clock;
 class MemberLocationBoundary {
 
     private final MemberLocationRepository memberLocationRepository;
-    private final BoundaryUtils boundaryUtils;
     private final Clock clock;
 
     @Autowired
-    MemberLocationBoundary(MemberLocationRepository memberLocationRepository,
-                           BoundaryUtils boundaryUtils, Clock clock) {
+    MemberLocationBoundary(MemberLocationRepository memberLocationRepository, Clock clock) {
         this.memberLocationRepository = memberLocationRepository;
-        this.boundaryUtils = boundaryUtils;
         this.clock = clock;
     }
 
     @GetMapping(path = "/{member}/location")
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
-    public MemberLocationDto getMemberLocation(@PathVariable("tenant") String tenantIdentifier,
-                                               @PathVariable("member") Long memberId) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
-        final Member member = boundaryUtils.findMember(tenant, memberId);
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN, UserRole.TENANT_USER})
+    public MemberLocationDto getMemberLocation(@PathVariable("tenant") Tenant tenant,
+                                               @PathVariable("member") Member member) {
         return memberLocationRepository.findByMember(member).map(MemberLocationDto::new)
                 .orElseGet(MemberLocationDto::new);
     }
 
     @PutMapping(path = "/{member}/location")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    // TODO Security
-    public ResponseEntity<Void> putMemberLocation(@PathVariable("tenant") String tenantIdentifier,
-                                                  @PathVariable("member") Long memberId,
+    @RequireAnyRoleOrCorrespondingMember({UserRole.SYSADMIN, UserRole.TENANT_ADMIN})
+    public ResponseEntity<Void> putMemberLocation(@PathVariable("tenant") Tenant tenant,
+                                                  @PathVariable("member") Member member,
                                                   @RequestBody @Valid MemberLocationDto body) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
-        final Member member = boundaryUtils.findMember(tenant, memberId);
         MemberLocation memberLocation =
                 memberLocationRepository.findByMember(member).orElseGet(() -> new MemberLocation(member, clock));
         memberLocation.changeDistance(body.distanceToStation, clock);

@@ -4,6 +4,7 @@ import net.pkhapps.semitarius.server.boundary.dto.MemberDto;
 import net.pkhapps.semitarius.server.boundary.dto.MemberLocationDto;
 import net.pkhapps.semitarius.server.boundary.dto.MemberStatusDto;
 import net.pkhapps.semitarius.server.boundary.dto.MemberSummaryDto;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
 import net.pkhapps.semitarius.server.domain.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,26 +33,21 @@ class MemberSummaryBoundary {
     private final MemberRepository memberRepository;
     private final MemberLocationRepository memberLocationRepository;
     private final MemberStatusRepository memberStatusRepository;
-    private final BoundaryUtils boundaryUtils;
 
     @Autowired
     MemberSummaryBoundary(MemberRepository memberRepository,
                           MemberLocationRepository memberLocationRepository,
-                          MemberStatusRepository memberStatusRepository,
-                          BoundaryUtils boundaryUtils) {
+                          MemberStatusRepository memberStatusRepository) {
         this.memberRepository = memberRepository;
         this.memberLocationRepository = memberLocationRepository;
         this.memberStatusRepository = memberStatusRepository;
-        this.boundaryUtils = boundaryUtils;
     }
 
     @GetMapping(path = "/{member}/summary")
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
-    public MemberSummaryDto getMemberSummary(@PathVariable("tenant") String tenantIdentifier,
-                                             @PathVariable("member") Long memberId) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
-        final Member member = boundaryUtils.findMember(tenant, memberId);
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN, UserRole.TENANT_USER})
+    public MemberSummaryDto getMemberSummary(@PathVariable("tenant") Tenant tenant,
+                                             @PathVariable("member") Member member) {
         final MemberSummaryDto summaryDto = new MemberSummaryDto();
         summaryDto.member = new MemberDto(member);
         memberStatusRepository.findByMember(member).map(MemberStatusDto::new)
@@ -61,12 +57,10 @@ class MemberSummaryBoundary {
         return summaryDto;
     }
 
-
     @GetMapping(path = "/summary")
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
-    public List<MemberSummaryDto> getMemberSummaries(@PathVariable("tenant") String tenantIdentifier) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN, UserRole.TENANT_USER})
+    public List<MemberSummaryDto> getMemberSummaries(@PathVariable("tenant") Tenant tenant) {
         final List<Member> members = memberRepository.findByTenant(tenant);
         final Map<Member, MemberStatusDto> statusMap = memberStatusRepository.findByMemberIn(members).stream()
                 .collect(Collectors.toMap(MemberStatus::getMember, MemberStatusDto::new));

@@ -2,6 +2,8 @@ package net.pkhapps.semitarius.server.boundary;
 
 import net.pkhapps.semitarius.server.boundary.dto.MemberStatusDto;
 import net.pkhapps.semitarius.server.boundary.exception.InvalidStatusDescriptorException;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRoleOrCorrespondingMember;
 import net.pkhapps.semitarius.server.domain.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,37 +27,31 @@ class MemberStatusBoundary {
 
     private final MemberStatusRepository memberStatusRepository;
     private final StatusDescriptorRepository statusDescriptorRepository;
-    private final BoundaryUtils boundaryUtils;
     private final Clock clock;
 
     @Autowired
     MemberStatusBoundary(MemberStatusRepository memberStatusRepository,
                          StatusDescriptorRepository statusDescriptorRepository,
-                         BoundaryUtils boundaryUtils, Clock clock) {
+                         Clock clock) {
         this.memberStatusRepository = memberStatusRepository;
         this.statusDescriptorRepository = statusDescriptorRepository;
-        this.boundaryUtils = boundaryUtils;
         this.clock = clock;
     }
 
     @GetMapping(path = "/{member}/status")
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    // TODO Security
-    public MemberStatusDto getMemberStatus(@PathVariable("tenant") String tenantIdentifier,
-                                           @PathVariable("member") Long memberId) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
-        final Member member = boundaryUtils.findMember(tenant, memberId);
+    @RequireAnyRole({UserRole.SYSADMIN, UserRole.TENANT_ADMIN, UserRole.TENANT_USER})
+    public MemberStatusDto getMemberStatus(@PathVariable("tenant") Tenant tenant,
+                                           @PathVariable("member") Member member) {
         return memberStatusRepository.findByMember(member).map(MemberStatusDto::new).orElseGet(MemberStatusDto::new);
     }
 
     @PutMapping(path = "/{member}/status")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    // TODO Security
-    public ResponseEntity<Void> putMemberStatus(@PathVariable("tenant") String tenantIdentifier,
-                                                @PathVariable("member") Long memberId,
+    @RequireAnyRoleOrCorrespondingMember({UserRole.SYSADMIN, UserRole.TENANT_ADMIN})
+    public ResponseEntity<Void> putMemberStatus(@PathVariable("tenant") Tenant tenant,
+                                                @PathVariable("member") Member member,
                                                 @RequestBody @Valid MemberStatusDto body) {
-        final Tenant tenant = boundaryUtils.findTenant(tenantIdentifier);
-        final Member member = boundaryUtils.findMember(tenant, memberId);
         MemberStatus memberStatus =
                 memberStatusRepository.findByMember(member).orElseGet(() -> new MemberStatus(member, clock));
         StatusDescriptor status =

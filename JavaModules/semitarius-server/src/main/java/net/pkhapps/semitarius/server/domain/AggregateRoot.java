@@ -91,4 +91,9 @@ public abstract class AggregateRoot extends AbstractAggregateRoot {
     public int hashCode() {
         return id == null ? super.hashCode() : Objects.hash(getClass(), id);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s[id=%d, version=%d]", getClass().getSimpleName(), id, version);
+    }
 }
