@@ -15,7 +15,7 @@ public class UserAccountDetails implements UserDetails {
 
     private final UserAccount userAccount;
 
-    public UserAccountDetails(@NotNull UserAccount userAccount) {
+    UserAccountDetails(@NotNull UserAccount userAccount) {
         this.userAccount = Objects.requireNonNull(userAccount, "userAccount must not be null");
     }
 

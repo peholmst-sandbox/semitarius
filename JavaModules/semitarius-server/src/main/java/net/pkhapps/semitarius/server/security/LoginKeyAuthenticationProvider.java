@@ -8,7 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 /**
- * TODO document me
+ * Authentication provider that supports {@link LoginKeyAuthenticationToken}s. A token will be authenticated if its
+ * {@link LoginKeyAuthenticationToken#getLoginKey() login key} is valid (i.e. exists in the database).
  */
 class LoginKeyAuthenticationProvider implements AuthenticationProvider {
 

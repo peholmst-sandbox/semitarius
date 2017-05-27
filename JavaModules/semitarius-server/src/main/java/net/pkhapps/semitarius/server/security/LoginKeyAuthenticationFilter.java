@@ -15,13 +15,22 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * TODO Document me
+ * Authentication filter that supports "login key authentication". This is a kind of "remember me" authentication,
+ * but designed for REST APIs that don't use cookies. The filter will check if the HTTP request contains a special
+ * header with a login key and if so, create a new {@link LoginKeyAuthenticationToken} and authenticate using that.
+ * If authentication succeeds, the current
+ * {@link org.springframework.security.core.context.SecurityContext security context} is
+ * updated. If it fails, the filter will proceed down the chain, allowing other authentication filters to process the
+ * request. This filter will not even try to perform any authentication if the current security context already
+ * contains a valid authentication token.
+ *
+ * @see LoginKeyAuthenticationProvider
  */
 class LoginKeyAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginKeyAuthenticationFilter.class);
 
-    static final String LOGIN_KEY_HEADER_NAME = "semitarius-login-key";
+    private static final String LOGIN_KEY_HEADER_NAME = "semitarius-login-key";
 
     private final AuthenticationManager authenticationManager;
 
