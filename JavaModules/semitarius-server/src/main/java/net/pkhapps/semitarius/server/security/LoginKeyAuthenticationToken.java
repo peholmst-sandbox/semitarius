@@ -46,11 +46,23 @@ public class LoginKeyAuthenticationToken extends AbstractAuthenticationToken {
         super.setAuthenticated(true);
     }
 
+    /**
+     * The credentials are always the {@link #getLoginKey() login key}.
+     * <p>
+     * Inherited JavaDocs: {@inheritDoc}
+     */
     @Override
     public Object getCredentials() {
         return getLoginKey();
     }
 
+    /**
+     * If the token is an authentication request, the principal is {@code null} since the
+     * {@link #getLoginKey() login key} alone is enough to identify and authenticate the user. If the token is a
+     * validated authentication token, the principal is an instance of {@link UserAccountDetails}.
+     * <p>
+     * Inherited JavaDocs: {@inheritDoc}
+     */
     @Override
     public Object getPrincipal() {
         return principal;
