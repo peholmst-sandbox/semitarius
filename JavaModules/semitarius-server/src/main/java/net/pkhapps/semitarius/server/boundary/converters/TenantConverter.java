@@ -1,8 +1,8 @@
 package net.pkhapps.semitarius.server.boundary.converters;
 
 import net.pkhapps.semitarius.server.boundary.exception.TenantNotFoundException;
-import net.pkhapps.semitarius.server.domain.model.Tenant;
-import net.pkhapps.semitarius.server.domain.model.TenantRepository;
+import net.pkhapps.semitarius.server.domain.Tenant;
+import net.pkhapps.semitarius.server.domain.TenantRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

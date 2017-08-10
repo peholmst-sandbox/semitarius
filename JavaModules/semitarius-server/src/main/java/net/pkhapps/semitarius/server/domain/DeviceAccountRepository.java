@@ -1,6 +1,4 @@
-package net.pkhapps.semitarius.server.domain.model;
-
-import net.pkhapps.semitarius.server.domain.Repository;
+package net.pkhapps.semitarius.server.domain;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +8,7 @@ import java.util.Optional;
  */
 public interface DeviceAccountRepository extends Repository<DeviceAccount> {
 
-    Optional<DeviceAccount> findByLoginKey(String loginKey);
+    Optional<DeviceAccount> findByLoginId(String loginId);
 
     List<DeviceAccount> findByUserAccount(UserAccount userAccount);
 }

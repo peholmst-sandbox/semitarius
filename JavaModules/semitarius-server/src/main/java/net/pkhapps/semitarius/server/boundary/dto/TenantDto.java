@@ -2,7 +2,7 @@ package net.pkhapps.semitarius.server.boundary.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.pkhapps.semitarius.server.domain.model.Tenant;
+import net.pkhapps.semitarius.server.domain.Tenant;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;

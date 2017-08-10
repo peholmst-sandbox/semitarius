@@ -1,6 +1,5 @@
-package net.pkhapps.semitarius.server.domain.model;
+package net.pkhapps.semitarius.server.domain;
 
-import net.pkhapps.semitarius.server.domain.ConstructorUsedByJPAOnly;
 import net.pkhapps.semitarius.server.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -24,7 +22,6 @@ public class UserAccount extends AbstractUser {
     static final String COL_USERNAME = "username";
     static final String COL_PASSWORD = "password";
     static final String COL_FULL_NAME = "full_name";
-    static final String COL_MEMBER = "member_id";
     static final String COL_ROLE = "role";
 
     @Column(name = COL_USERNAME, unique = true, nullable = false)
@@ -36,10 +33,6 @@ public class UserAccount extends AbstractUser {
     @Column(name = COL_FULL_NAME)
     private String fullName;
 
-    @OneToOne
-    @JoinColumn(name = COL_MEMBER, unique = true)
-    private Member member;
-
     @Column(name = COL_ROLE, nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role;
@@ -47,16 +40,6 @@ public class UserAccount extends AbstractUser {
     @ConstructorUsedByJPAOnly
     @SuppressWarnings("unused")
     UserAccount() {
-    }
-
-    public UserAccount(@NotNull Member member, @NotNull String username, @NotNull UserRole role) {
-        super(Objects.requireNonNull(member, "member must not be null").getTenant());
-        this.member = member;
-        this.username = Strings.requireNonEmpty(username, "username must not be empty");
-        if (!role.isTenantSpecific()) {
-            throw new IllegalArgumentException("Role must be tenant specific");
-        }
-        this.role = role;
     }
 
     public UserAccount(@Nullable Tenant tenant, @NotNull String username, @NotNull String fullName,
@@ -90,23 +73,11 @@ public class UserAccount extends AbstractUser {
     @Override
     @NotNull
     public String getFullName() {
-        if (member == null) {
-            return fullName;
-        } else {
-            return String.format("%s %s", member.getFirstName(), member.getLastName());
-        }
+        return fullName;
     }
 
     public void setFullName(@NotNull String fullName) {
-        if (member != null) {
-            throw new IllegalStateException("Cannot set fullName of member user account");
-        }
         this.fullName = Strings.requireNonEmpty(fullName, "fullName must not be empty");
-    }
-
-    @NotNull
-    public Optional<Member> getMember() {
-        return Optional.ofNullable(member);
     }
 
     @NotNull

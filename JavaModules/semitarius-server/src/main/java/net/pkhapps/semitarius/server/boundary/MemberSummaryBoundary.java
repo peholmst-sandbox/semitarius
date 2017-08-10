@@ -5,6 +5,8 @@ import net.pkhapps.semitarius.server.boundary.dto.MemberLocationDto;
 import net.pkhapps.semitarius.server.boundary.dto.MemberStatusDto;
 import net.pkhapps.semitarius.server.boundary.dto.MemberSummaryDto;
 import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
+import net.pkhapps.semitarius.server.domain.Tenant;
+import net.pkhapps.semitarius.server.domain.UserRole;
 import net.pkhapps.semitarius.server.domain.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;

@@ -1,6 +1,6 @@
 package net.pkhapps.semitarius.server.security;
 
-import net.pkhapps.semitarius.server.domain.model.UserAccount;
+import net.pkhapps.semitarius.server.domain.UserAccount;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

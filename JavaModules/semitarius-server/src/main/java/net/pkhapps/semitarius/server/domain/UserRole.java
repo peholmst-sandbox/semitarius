@@ -1,4 +1,4 @@
-package net.pkhapps.semitarius.server.domain.model;
+package net.pkhapps.semitarius.server.domain;
 
 import org.jetbrains.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;

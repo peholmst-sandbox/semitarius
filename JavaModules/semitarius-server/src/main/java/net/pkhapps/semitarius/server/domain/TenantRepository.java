@@ -1,6 +1,4 @@
-package net.pkhapps.semitarius.server.domain.model;
-
-import net.pkhapps.semitarius.server.domain.Repository;
+package net.pkhapps.semitarius.server.domain;
 
 import java.util.Optional;
 

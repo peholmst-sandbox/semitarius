@@ -1,7 +1,5 @@
-package net.pkhapps.semitarius.server.domain.model;
+package net.pkhapps.semitarius.server.domain;
 
-import net.pkhapps.semitarius.server.domain.AggregateRoot;
-import net.pkhapps.semitarius.server.domain.ConstructorUsedByJPAOnly;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.JoinColumn;

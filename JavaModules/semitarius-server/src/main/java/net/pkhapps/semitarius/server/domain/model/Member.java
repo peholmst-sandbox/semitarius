@@ -1,13 +1,11 @@
 package net.pkhapps.semitarius.server.domain.model;
 
-import net.pkhapps.semitarius.server.domain.ConstructorUsedByJPAOnly;
+import net.pkhapps.semitarius.server.domain.*;
 import net.pkhapps.semitarius.server.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Optional;
 
 /**
@@ -17,13 +15,14 @@ import java.util.Optional;
  */
 @Entity
 @Table(name = Member.TABLE_NAME)
-public class Member extends TenantOwnedAggregateRoot {
+public class Member extends TenantOwnedAggregateRoot implements UserOwnedAggregateRoot {
 
     static final String TABLE_NAME = "members";
     static final String COL_FIRST_NAME = "first_name";
     static final String COL_LAST_NAME = "last_name";
     static final String COL_EMAIL = "email";
-    static final String COL_PHONE_NUMBER = "phoneNumber";
+    static final String COL_PHONE_NUMBER = "phone_number";
+    static final String COL_OWNING_USER_ID = "owning_user_id";
 
     @Column(name = COL_FIRST_NAME)
     private String firstName;
@@ -36,6 +35,10 @@ public class Member extends TenantOwnedAggregateRoot {
 
     @Column(name = COL_PHONE_NUMBER)
     private String phoneNumber;
+
+    @OneToOne
+    @JoinColumn(name = COL_OWNING_USER_ID)
+    private UserAccount owningUser;
 
     @ConstructorUsedByJPAOnly
     @SuppressWarnings("unused")
@@ -85,4 +88,12 @@ public class Member extends TenantOwnedAggregateRoot {
         // TODO Validate and sanitize phone number
         this.phoneNumber = phoneNumber;
     }
+
+    @NotNull
+    @Override
+    public Optional<UserAccount> getOwningUser() {
+        return Optional.ofNullable(owningUser);
+    }
+
+    // TODO Set owning user
 }

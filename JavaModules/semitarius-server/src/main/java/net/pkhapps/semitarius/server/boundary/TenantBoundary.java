@@ -2,9 +2,9 @@ package net.pkhapps.semitarius.server.boundary;
 
 import net.pkhapps.semitarius.server.boundary.dto.TenantDto;
 import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
-import net.pkhapps.semitarius.server.domain.model.Tenant;
-import net.pkhapps.semitarius.server.domain.model.TenantRepository;
-import net.pkhapps.semitarius.server.domain.model.UserRole;
+import net.pkhapps.semitarius.server.domain.Tenant;
+import net.pkhapps.semitarius.server.domain.TenantRepository;
+import net.pkhapps.semitarius.server.domain.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * REST boundary for retrieving tenants.
  *
- * @see net.pkhapps.semitarius.server.domain.model.Tenant
+ * @see Tenant
  */
 @RestController
 @RequestMapping(path = TenantBoundary.PATH)

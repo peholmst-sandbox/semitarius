@@ -1,6 +1,6 @@
 package net.pkhapps.semitarius.server.boundary.security;
 
-import net.pkhapps.semitarius.server.domain.model.*;
+import net.pkhapps.semitarius.server.domain.*;
 import net.pkhapps.semitarius.server.security.UserAccountDetails;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,12 +17,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
  * Aspect that enforces security on {@link org.springframework.web.bind.annotation.RestController REST controllers}
- * as directed by the {@link RequireAnyRole} and {@link RequireAnyRoleOrCorrespondingMember} annotations. As an added
+ * as directed by the {@link RequireAnyRole} and {@link RequireAnyRoleOrOwningUser} annotations. As an added
  * bonus, this aspect will also deny access to any REST controller methods that lack these annotations.
  */
 @Aspect
@@ -49,35 +48,39 @@ class TenantAwareMethodSecurityAspect {
 
     /**
      * The same as {@link #requireAnyRole(JoinPoint, RequireAnyRole)}, but also grants access if the current user
-     * corresponds to the {@link Member} that the operation concerns (regardless of any roles). The member is
-     * retrieved from the {@link JoinPoint#getArgs() method arguments}. The idea with this aspect is to e.g. allow an
-     * admin to edit any member within the tenant, or an ordinary user to edit its own member data. For this to work,
-     * the {@link Authentication#getPrincipal() principal} of the current
+     * owns all the {@link UserOwnedAggregateRoot}s that the operation concerns (regardless of any roles). The
+     * aggregate roots are retrieved from the {@link JoinPoint#getArgs() method arguments}. The idea with this aspect
+     * is to e.g. allow an admin to edit any member within the tenant, or an ordinary user to edit its own member
+     * data. For this to work, the {@link Authentication#getPrincipal() principal} of the current
      * {@link SecurityContext#getAuthentication() authentication} must be an instance of {@link UserAccountDetails}.
      *
      * @throws AccessDeniedException if access is denied.
      */
     @Before(value = "@within(org.springframework.web.bind.annotation.RestController) && @annotation(annotation)",
             argNames = "jp, annotation")
-    public void requireAnyRoleOrCorrespondingMember(JoinPoint jp, RequireAnyRoleOrCorrespondingMember annotation)
+    public void requireAnyRoleOrOwningUser(JoinPoint jp, RequireAnyRoleOrOwningUser annotation)
             throws Throwable {
         final Tenant tenant = getTenant(jp.getArgs());
         checkTenantSpecificArguments(tenant, jp.getArgs());
-        final Member member = getMember(jp.getArgs());
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && member != null) {
-            if (authentication.getPrincipal() instanceof UserAccountDetails) {
+        try {
+            checkCurrentUserRoles(tenant, annotation.value());
+        } catch (AccessDeniedException ex) {
+            Stream<UserOwnedAggregateRoot> userOwnedAggregateRoots =
+                    getArguments(jp.getArgs(), UserOwnedAggregateRoot.class);
+            final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof UserAccountDetails) {
                 UserAccount userAccount = ((UserAccountDetails) authentication.getPrincipal()).getUserAccount();
-                Optional<Member> correspondingMember = userAccount.getMember();
-                if (correspondingMember.isPresent() && correspondingMember.get().equals(member)) {
-                    LOGGER.trace("Current user corresponds to member [{}], granting access", member);
+                if (userOwnedAggregateRoots.map(UserOwnedAggregateRoot::getOwningUser)
+                        .allMatch(o -> o.isPresent() && o.get().equals(userAccount))) {
+                    LOGGER.trace("The user [{}] owns all user owned method parameters, granting access anyway",
+                            authentication);
                     return; // OK
                 }
             } else {
                 LOGGER.warn("Current authentication principal is NOT an instance of UserAccountDetails");
             }
+            throw ex;
         }
-        checkCurrentUserRoles(tenant, annotation.value());
     }
 
     private static void checkTenantSpecificArguments(@Nullable Tenant tenant, @NotNull Object[] methodArguments) {
@@ -105,16 +108,16 @@ class TenantAwareMethodSecurityAspect {
                 }
             }
         }
-        LOGGER.trace("Denying access to user [{}]", authentication);
+        LOGGER.trace("Denying access to user [{}] because of insufficient roles", authentication);
         throw new AccessDeniedException("The current user does not have permission to perform the operation");
     }
 
     /**
      * This aspect denies access to all methods that have not been annotated with either {@link RequireAnyRole} or
-     * {@link RequireAnyRoleOrCorrespondingMember}. The idea is to prevent accidental security holes.
+     * {@link RequireAnyRoleOrOwningUser}. The idea is to prevent accidental security holes.
      */
     @Before(value = "@within(org.springframework.web.bind.annotation.RestController) && !@annotation(RequireAnyRole) " +
-                    "&& !@annotation(RequireAnyRoleOrCorrespondingMember)")
+                    "&& !@annotation(net.pkhapps.semitarius.server.boundary.security.RequireAnyRoleOrOwningUser)")
     public void denyAccessToUnannotatedMethods(JoinPoint jp) throws Throwable {
         LOGGER.warn("Method [{}] is not protected, denying access by default", jp.getSignature());
         throw new AccessDeniedException(
@@ -124,11 +127,6 @@ class TenantAwareMethodSecurityAspect {
     @Nullable
     private static Tenant getTenant(@NotNull Object[] methodArguments) {
         return getArgument(methodArguments, Tenant.class);
-    }
-
-    @Nullable
-    private static Member getMember(@NotNull Object[] methodArguments) {
-        return getArgument(methodArguments, Member.class);
     }
 
     @Nullable

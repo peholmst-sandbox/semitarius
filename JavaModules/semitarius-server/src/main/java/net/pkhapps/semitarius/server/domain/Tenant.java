@@ -1,7 +1,6 @@
-package net.pkhapps.semitarius.server.domain.model;
+package net.pkhapps.semitarius.server.domain;
 
-import net.pkhapps.semitarius.server.domain.AggregateRoot;
-import net.pkhapps.semitarius.server.domain.ConstructorUsedByJPAOnly;
+import net.pkhapps.semitarius.server.domain.model.Coordinates;
 import net.pkhapps.semitarius.server.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

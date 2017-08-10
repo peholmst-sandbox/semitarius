@@ -2,7 +2,9 @@ package net.pkhapps.semitarius.server.boundary;
 
 import net.pkhapps.semitarius.server.boundary.dto.MemberLocationDto;
 import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
-import net.pkhapps.semitarius.server.boundary.security.RequireAnyRoleOrCorrespondingMember;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRoleOrOwningUser;
+import net.pkhapps.semitarius.server.domain.Tenant;
+import net.pkhapps.semitarius.server.domain.UserRole;
 import net.pkhapps.semitarius.server.domain.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,7 +46,7 @@ class MemberLocationBoundary {
 
     @PutMapping(path = "/{member}/location")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @RequireAnyRoleOrCorrespondingMember({UserRole.SYSADMIN, UserRole.TENANT_ADMIN})
+    @RequireAnyRoleOrOwningUser({UserRole.SYSADMIN, UserRole.TENANT_ADMIN})
     public ResponseEntity<Void> putMemberLocation(@PathVariable("tenant") Tenant tenant,
                                                   @PathVariable("member") Member member,
                                                   @RequestBody @Valid MemberLocationDto body) {

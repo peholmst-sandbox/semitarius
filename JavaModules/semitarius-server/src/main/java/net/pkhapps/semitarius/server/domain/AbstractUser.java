@@ -1,6 +1,5 @@
-package net.pkhapps.semitarius.server.domain.model;
+package net.pkhapps.semitarius.server.domain;
 
-import net.pkhapps.semitarius.server.domain.AggregateRoot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;

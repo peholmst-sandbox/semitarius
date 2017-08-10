@@ -1,6 +1,4 @@
-package net.pkhapps.semitarius.server.domain.model;
-
-import net.pkhapps.semitarius.server.domain.Repository;
+package net.pkhapps.semitarius.server.domain;
 
 import java.util.Optional;
 
@@ -10,6 +8,4 @@ import java.util.Optional;
 public interface UserAccountRepository extends Repository<UserAccount> {
 
     Optional<UserAccount> findByUsername(String username);
-
-    Optional<UserAccount> findByMember(Member member);
 }

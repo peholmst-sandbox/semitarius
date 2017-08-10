@@ -12,13 +12,14 @@ import java.lang.annotation.Target;
  * Annotation used to secure methods of
  * {@link org.springframework.web.bind.annotation.RestController REST controllers}. The current user must hold any of
  * the specified roles to gain access. If the role is {@link UserRole#isTenantSpecific() tenant specific}, the
- * method must contain a parameter of type {@link Tenant} that contains
- * the tenant in question.
+ * method must contain a parameter of type {@link Tenant} that contains the tenant in question. Even if the user does
+ * not hold the necessary role, access can be granted if the user owns all of the
+ * {@link net.pkhapps.semitarius.server.domain.UserOwnedAggregateRoot}s that are used as method parameters.
  *
- * @see RequireAnyRoleOrOwningUser
+ * @see RequireAnyRole
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequireAnyRole {
+public @interface RequireAnyRoleOrOwningUser {
     UserRole[] value();
 }

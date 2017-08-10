@@ -1,7 +1,7 @@
 package net.pkhapps.semitarius.server.security;
 
-import net.pkhapps.semitarius.server.domain.model.DeviceAccountRepository;
-import net.pkhapps.semitarius.server.domain.model.UserAccountRepository;
+import net.pkhapps.semitarius.server.domain.DeviceAccountRepository;
+import net.pkhapps.semitarius.server.domain.UserAccountRepository;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;

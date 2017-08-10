@@ -3,7 +3,9 @@ package net.pkhapps.semitarius.server.boundary;
 import net.pkhapps.semitarius.server.boundary.dto.MemberStatusDto;
 import net.pkhapps.semitarius.server.boundary.exception.InvalidStatusDescriptorException;
 import net.pkhapps.semitarius.server.boundary.security.RequireAnyRole;
-import net.pkhapps.semitarius.server.boundary.security.RequireAnyRoleOrCorrespondingMember;
+import net.pkhapps.semitarius.server.boundary.security.RequireAnyRoleOrOwningUser;
+import net.pkhapps.semitarius.server.domain.Tenant;
+import net.pkhapps.semitarius.server.domain.UserRole;
 import net.pkhapps.semitarius.server.domain.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,7 +50,7 @@ class MemberStatusBoundary {
 
     @PutMapping(path = "/{member}/status")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @RequireAnyRoleOrCorrespondingMember({UserRole.SYSADMIN, UserRole.TENANT_ADMIN})
+    @RequireAnyRoleOrOwningUser({UserRole.SYSADMIN, UserRole.TENANT_ADMIN})
     public ResponseEntity<Void> putMemberStatus(@PathVariable("tenant") Tenant tenant,
                                                 @PathVariable("member") Member member,
                                                 @RequestBody @Valid MemberStatusDto body) {

@@ -1,6 +1,8 @@
 package net.pkhapps.semitarius.server.domain.model;
 
 import net.pkhapps.semitarius.server.domain.ConstructorUsedByJPAOnly;
+import net.pkhapps.semitarius.server.domain.Tenant;
+import net.pkhapps.semitarius.server.domain.TenantOwnedAggregateRoot;
 import net.pkhapps.semitarius.server.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
