@@ -1,0 +1,55 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<!-- App layout elements -->
+<link rel="import" href="bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+<!-- Firebase elements -->
+<link rel="import" href="bower_components/polymerfire/firebase-auth.html">
+
+<!-- Iron elements -->
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+
+<!-- Paper elements -->
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/paper-progress/paper-progress.html">
+
+<dom-module id="main-view">
+    <template>
+        <firebase-auth
+            id="auth"
+            user="{{user}}">
+        </firebase-auth>
+        
+        <app-header-layout fullbleed>
+            <app-header slot="header" fixed condenses effects="waterfall" style="height: 96px">
+                <app-toolbar style="height: 64px">
+                    <paper-icon-button icon="menu"></paper-icon-button>
+                    <div main-title>Semitarius Web</div>    
+                    <paper-progress value="10" indeterminate bottom-item></paper-progress>
+                </app-toolbar>
+            </app-header>
+
+        <app-drawer id="drawer" swipe-open>
+            <paper-button raised on-tap="logout">Logout</paper-button>
+        </app-drawer>
+        </app-header-layout>
+    </template>
+
+    <script>
+
+        class MainView extends Polymer.Element {
+            static get is() { return 'main-view'; }
+
+            logout() {
+                this.$.auth.signOut();
+            }
+        }
+
+        window.customElements.define(MainView.is, MainView);
+    </script>
+</dom-module>

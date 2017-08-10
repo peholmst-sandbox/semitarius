@@ -1,0 +1,69 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<!-- Firebase elements -->
+<link rel="import" href="bower_components/polymerfire/firebase-auth.html">
+
+<!-- Paper elements -->
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+
+<!-- Paper styles -->
+<link rel="import" href="bower_components/paper-styles/shadow.html">
+<link rel="import" href="bower_components/paper-styles/typography.html">
+
+<dom-module id="login-view">
+    <template>
+        <style>
+            :host {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: var(--default-primary-color);
+            }
+
+            .login-form {
+                @apply --shadow-elevation-8dp;
+                border-radius: 2px;
+                background-color: white;
+                padding: 8px;
+            }
+
+            .primary-button {
+                background-color: var(--default-primary-color);
+            }
+        </style>
+
+        <!-- TODO Figure out how to make this login form look awesome -->
+        <firebase-auth
+            id="auth"
+            user="{{user}}"
+            provider="google">
+        </firebase-auth>
+        <div class="login-form">
+            <paper-input label="Login e-mail"></paper-input>
+            <paper-input label="Password" type="password"></paper-input>
+            <paper-button raised class="primary-button" on-tap="login">Login</paper-button>
+            <paper-button on-tap="oauthLogin">Login with Google</paper-button>
+        </div>
+    </template>
+
+    <script>
+
+        class LoginView extends Polymer.Element {
+            static get is() { return 'login-view'; }
+
+            login() {
+                // TODO Not implemented yet                
+            }
+
+            oauthLogin() {
+                return this.$.auth.signInWithPopup();
+            }
+        }
+
+        window.customElements.define(LoginView.is, LoginView);
+    </script>
+</dom-module>

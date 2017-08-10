@@ -1,0 +1,54 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+
+<!-- Firebase elements -->
+<link rel="import" href="bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="bower_components/polymerfire/firebase-auth.html">
+
+<!-- Application elements -->
+<link rel="import" href="app-theme.html">
+<link rel="import" href="login-view.html">
+<link rel="import" href="main-view.html">
+
+<dom-module id="semitarius-app">
+    <template>
+        <style include="app-theme">
+        </style>
+        <firebase-app
+            id="firebase"
+            auth-domain="semitarius.firebaseapp.com"
+            database-url="https://semitarius.firebaseio.com"
+            api-key="AIzaSyDyHLiYTJmwKN5QkwQ64If1cEXIo_eoFrg">
+        </firebase-app>
+        <firebase-auth
+            id="auth"
+            user="{{user}}"
+            status-known="{{statusKnown}}">
+        </firebase-auth>
+
+        <template is="dom-if" if="[[user]]">
+            <main-view user="{{user}}"></main-view>
+        </template>
+        <template is="dom-if" if="[[!user]]">
+            <login-view></login-view>
+        </template>
+    </template>
+
+    <script>
+
+        class SemitariusApp extends Polymer.Element {
+            static get is() { return 'semitarius-app'; }
+            static get properties() {
+                return {
+                    user: {
+                        type: Object
+                    },
+                    statusKnown: {
+                        type: Boolean
+                    }
+                };
+            }
+        }
+
+        window.customElements.define(SemitariusApp.is, SemitariusApp);
+    </script>
+</dom-module>
